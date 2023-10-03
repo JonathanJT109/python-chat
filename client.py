@@ -18,10 +18,10 @@ def listen_thread():
         time.sleep(0.1)
     while status:
         (msg, addr) = s.recvfrom(1024)
-        msg = msg.decode('UTF-8')
+        msg = msg.decode("UTF-8")
 
-        if msg == 'ping!':
-            s.sendto("active".encode('UTF-8'), (SERVER_HOST, SERVER_PORT))
+        if msg == "ping!":
+            s.sendto("active".encode("UTF-8"), (SERVER_HOST, SERVER_PORT))
         else:
             print(msg)
 
@@ -47,7 +47,7 @@ while True:
     if len(name) > 0:
         break
 
-s.sendto(f'user_name: {name}'.encode('UTF-8'), (SERVER_HOST, SERVER_PORT))
+s.sendto(f"user_name: {name}".encode("UTF-8"), (SERVER_HOST, SERVER_PORT))
 
 thread = threading.Thread(target=listen_thread).start()
 
@@ -63,5 +63,5 @@ while True:
 
     message = user_input
 
-    s.sendto(message.encode('UTF-8'), (SERVER_HOST, SERVER_PORT))
+    s.sendto(message.encode("UTF-8"), (SERVER_HOST, SERVER_PORT))
     sock_ready = True

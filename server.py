@@ -5,16 +5,26 @@ import random
 from colorama import Fore, init, Back
 import time
 
-listen_port = 5555  # anything over 1024 
+listen_port = 5555  # anything over 1024
 
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-s.bind(('0.0.0.0', listen_port))
+s.bind(("0.0.0.0", listen_port))
 clients = {}
 
 init()
-colors = [Fore.BLUE, Fore.CYAN, Fore.GREEN, Fore.LIGHTBLACK_EX,
-          Fore.LIGHTBLUE_EX, Fore.LIGHTCYAN_EX, Fore.LIGHTGREEN_EX,
-          Fore.LIGHTMAGENTA_EX, Fore.LIGHTYELLOW_EX, Fore.MAGENTA, Fore.YELLOW]
+colors = [
+    Fore.BLUE,
+    Fore.CYAN,
+    Fore.GREEN,
+    Fore.LIGHTBLACK_EX,
+    Fore.LIGHTBLUE_EX,
+    Fore.LIGHTCYAN_EX,
+    Fore.LIGHTGREEN_EX,
+    Fore.LIGHTMAGENTA_EX,
+    Fore.LIGHTYELLOW_EX,
+    Fore.MAGENTA,
+    Fore.YELLOW,
+]
 
 
 class Client:
@@ -34,7 +44,7 @@ def listen_for_client():
         time.sleep(5)
 
         for client in clients.keys():
-            s.sendto(msg.encode('UTF-8'), client)
+            s.sendto(msg.encode("UTF-8"), client)
 
         for addr in clients.keys():
             if clients[addr].active_time + 10 < time.time():
@@ -49,8 +59,8 @@ thread = threading.Thread(target=listen_for_client).start()
 
 while True:
     msg, addr = s.recvfrom(1024)
-    msg = msg.decode('UTF-8')
-    date_now = datetime.now().strftime('%m-%d-%Y %H:%M:%S')
+    msg = msg.decode("UTF-8")
+    date_now = datetime.now().strftime("%m-%d-%Y %H:%M:%S")
 
     if "user_name:" in msg:
         msg = msg.replace("user_name: ", "")
@@ -64,13 +74,13 @@ while True:
         user_found = False
         for address in clients.keys():
             if clients[address].name == private_message[1]:
-                msg = msg.replace(f'{private_message[0]} {private_message[1]} ', "")
-                send_message = f'(PRIVATE) {clients[addr].color}[{date_now}] {clients[addr].name}: {msg}{Fore.RESET}'
-                s.sendto(send_message.encode('UTF-8'), address)
+                msg = msg.replace(f"{private_message[0]} {private_message[1]} ", "")
+                send_message = f"(PRIVATE) {clients[addr].color}[{date_now}] {clients[addr].name}: {msg}{Fore.RESET}"
+                s.sendto(send_message.encode("UTF-8"), address)
                 user_found = True
                 break
         if not user_found:
-            s.sendto("User has not been found".encode('UTF-8'), addr)
+            s.sendto("User has not been found".encode("UTF-8"), addr)
         continue
     elif "/ban" in msg:
         private_message = msg.split(" ")
@@ -78,25 +88,31 @@ while True:
             if clients[address].name == private_message[1]:
                 clients[address].ban_counter.add(addr)
                 if len(clients[address].ban_counter) > 1:
-                    s.sendto(f"{Fore.RED}--YOU HAVE BEEN BANNED FROM THE CHAT--{Fore.RESET}".encode('UTF-8'), address)
+                    s.sendto(
+                        f"{Fore.RED}--YOU HAVE BEEN BANNED FROM THE CHAT--{Fore.RESET}".encode(
+                            "UTF-8"
+                        ),
+                        address,
+                    )
                     clients[address].status = "banned"
                 break
         continue
-     elif "/users" in msg:
-        private_message = f'Number of users: {len(clients)}'
-        s.sendto(private_message.encode('UTF-8'), addr)
+    elif "/users" in msg:
+        private_message = f"Number of users: {len(clients)}"
+        s.sendto(private_message.encode("UTF-8"), addr)
         continue
-
 
     clients[addr].active_time = time.time()
 
     if msg == "active" or clients[addr].status == "banned":
         continue
 
-    send_message = f'{clients[addr].color}[{date_now}] {clients[addr].name}: {msg}{Fore.RESET}'
+    send_message = (
+        f"{clients[addr].color}[{date_now}] {clients[addr].name}: {msg}{Fore.RESET}"
+    )
     print(send_message)
 
     for c in clients.keys():
         if c == addr:
             continue
-        s.sendto(send_message.encode('UTF-8'), c)
+        s.sendto(send_message.encode("UTF-8"), c)
