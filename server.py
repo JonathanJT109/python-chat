@@ -82,6 +82,11 @@ while True:
                     clients[address].status = "banned"
                 break
         continue
+     elif "/users" in msg:
+        private_message = f'Number of users: {len(clients)}'
+        s.sendto(private_message.encode('UTF-8'), addr)
+        continue
+
 
     clients[addr].active_time = time.time()
 
